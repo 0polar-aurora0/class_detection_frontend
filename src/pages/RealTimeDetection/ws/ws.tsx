@@ -1,15 +1,21 @@
 /*
  * @Author: fuzhenghao
  * @Date: 2024-05-06 21:37:30
- * @LastEditTime: 2024-05-06 21:48:41
+ * @LastEditTime: 2024-05-07 01:41:05
  * @LastEditors: fuzhenghao
- * @Description: 
+ * @Description:
  * @FilePath: \class_detection_frontend\src\pages\RealTimeDetection\ws\ws.tsx
  */
-import React, { useState, useCallback, useEffect } from 'react';
+import { useModel } from '@umijs/max';
+import { message } from 'antd';
+import React, { useCallback, useEffect, useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
+const WSServer = 'ws://localhost:7001'
+
 export const WebSocketView = () => {
+  const { videoStream } = useModel('videoStream');
+
   //Public API that will echo messages sent to it back to the client
   const [socketUrl, setSocketUrl] = useState('wss://localhost:7001/');
   const [messageHistory, setMessageHistory] = useState<MessageEvent<any>[]>([]);
@@ -17,6 +23,11 @@ export const WebSocketView = () => {
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   useEffect(() => {
+    try {
+      setSocketUrl(WSServer);
+    } catch (error: any) {
+      message.error(error);
+    }
     if (lastMessage !== null) {
       setMessageHistory((prev) => prev.concat(lastMessage));
     }
@@ -24,7 +35,7 @@ export const WebSocketView = () => {
 
   const handleClickChangeSocketUrl = useCallback(
     () => setSocketUrl('wss://demos.kaazing.com/echo'),
-    []
+    [],
   );
 
   const handleClickSendMessage = useCallback(() => sendMessage('Hello'), []);

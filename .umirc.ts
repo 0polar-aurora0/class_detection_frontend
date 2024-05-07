@@ -23,8 +23,9 @@ export default defineConfig({
   routes: global_routes,
   npmClient: 'cnpm',
   styles: [`#root { height: 100%; }`],
+  dva: {},
   proxy: {
-    context: [ '/studentInfo'],
+    context: ['/studentInfo'],
     target: LocalServerPost,
   },
 });

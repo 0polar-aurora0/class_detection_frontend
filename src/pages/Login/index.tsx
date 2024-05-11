@@ -1,14 +1,15 @@
 /*
  * @Author: fuzhenghao
  * @Date: 2024-05-02 02:18:57
- * @LastEditTime: 2024-05-03 01:53:31
+ * @LastEditTime: 2024-05-12 03:46:17
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\Login\index.tsx
  */
 
+import { queryLogin } from '@/services/userInfoController';
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, message } from 'antd';
 import React, { useState } from 'react';
 import { history } from 'umi';
 import styles from './index.less';
@@ -19,13 +20,18 @@ type FieldType = {
   remember?: string;
 };
 
-const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-  console.log('Success:', values);
-  history.push('/home');
+const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+  let LoginResult = queryLogin({ values });
+  if (await LoginResult) {
+    history.push('/home');
+  } else {
+    message.error('账号密码错误');
+    // history.push('/register');
+  }
 };
 
 const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-  history.push('/home')
+  history.push('/home');
   console.log('Failed:', errorInfo);
 };
 

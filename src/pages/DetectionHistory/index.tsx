@@ -1,3 +1,11 @@
+/*
+ * @Author: fuzhenghao
+ * @Date: 2024-05-05 01:23:48
+ * @LastEditTime: 2024-05-09 17:59:14
+ * @LastEditors: fuzhenghao
+ * @Description: 
+ * @FilePath: \class_detection_frontend\src\pages\DetectionHistory\index.tsx
+ */
 import services from '@/services';
 import {
   ActionType,
@@ -91,31 +99,23 @@ const StudentInfoManage: React.FC<unknown> = () => {
   const [selectedRowsState, setSelectedRows] = useState<API.UserInfo[]>([]);
   const columns: ProDescriptionsItemProps<API.UserInfo>[] = [
     {
-      title: '学生id',
-      dataIndex: 'name',
-      tip: '名称是唯一的 key',
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-            message: '名称为必填项',
-          },
-        ],
-      },
-    },
-    {
-      title: '昵称',
-      dataIndex: 'nickName',
+      title: '检测编号',
+      dataIndex: 'detection_number',
       valueType: 'text',
     },
     {
-      title: '性别',
-      dataIndex: 'gender',
+      title: '学生id',
+      dataIndex: 'studentId',
+    },
+    {
+      title: '检测时间',
+      dataIndex: 'gedetection_timeStamp',
       hideInForm: true,
-      valueEnum: {
-        0: { text: '男', status: 'MALE' },
-        1: { text: '女', status: 'FEMALE' },
-      },
+    },
+    {
+      title: '检测结果',
+      dataIndex: 'detection_result',
+      hideInForm: true,
     },
     {
       title: '操作',
@@ -129,10 +129,10 @@ const StudentInfoManage: React.FC<unknown> = () => {
               setStepFormValues(record);
             }}
           >
-            配置
+            查看检测文件
           </a>
           <Divider type="vertical" />
-          <a href="">订阅警报</a>
+          <a href="">查看当前学生信息</a>
         </>
       ),
     },
@@ -147,15 +147,15 @@ const StudentInfoManage: React.FC<unknown> = () => {
         search={{
           labelWidth: 120,
         }}
-        toolBarRender={() => [
-          <Button
-            key="1"
-            type="primary"
-            onClick={() => handleModalVisible(true)}
-          >
-            新建
-          </Button>,
-        ]}
+        // toolBarRender={() => [
+        //   <Button
+        //     key="1"
+        //     type="primary"
+        //     onClick={() => handleModalVisible(true)}
+        //   >
+        //     新建
+        //   </Button>,
+        // ]}
         request={async (params, sorter, filter) => {
           const { data, success } = await queryUserList({
             ...params,

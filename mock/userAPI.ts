@@ -1,6 +1,16 @@
 const users = [
-  { id: 0, name: 'Umi', nickName: 'U', gender: 'MALE' },
-  { id: 1, name: 'Fish', nickName: 'B', gender: 'FEMALE' },
+  {
+    detection_number: 1,
+    studentId: 'Umi',
+    detection_result:'玩手机',
+    gedetection_timeStamp: '2024/05/07',
+  },
+  {
+    detection_number: 2,
+    studentId: 'anti',
+    detection_result:'玩手机',
+    gedetection_timeStamp: '2024/05/07',
+  },
 ];
 
 export default {

@@ -1,32 +1,32 @@
 /*
  * @Author: fuzhenghao
  * @Date: 2024-05-05 00:29:18
- * @LastEditTime: 2024-05-06 17:49:47
+ * @LastEditTime: 2024-05-13 11:10:14
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\services\utils\fetchMethod.ts
  */
 
-import { message } from 'antd';
-
+/**
+ * 处理过 http 状态码报错的 fetch 请求
+ */
 export const fetchWithStatusHandler = async (
   ...args: Parameters<typeof fetch>
 ): Promise<Response> => {
   try {
-    const response = await fetch(...args);
-    httpError_handle(response);
-    return response;
+    const response = await fetch(...args)
+    handleHttpError(response)
+    return response
   } catch (e) {
     if (e instanceof Error) {
-      return Promise.reject(e.message);
+      return Promise.reject(e.message)
     }
-    return Promise.reject(e);
+    return Promise.reject(e)
   }
-};
-
-const httpError_handle = (response: Response) => {
+}
+const handleHttpError = (response: Response) => {
   if (response.ok) return;
-  if (response.status !== 401) {
+  if (response.status !== 200) {
     throw new Error(`${response.status}, ${response.statusText}`);
   }
 };
@@ -40,29 +40,46 @@ export const formData_handle = (params?: Record<any, any>) => {
 };
 
 export const readResponseAsJSON = async (response: Response) => {
-  try {
-    const { data, resCode, resMsg, ...rest } = await response.json();
-    if (resCode !== 10000) {
-      message.error(resMsg);
-      throw new Error(resMsg);
-    }
-    return data;
-  } catch (e) {
-    if (e instanceof Error) {
-      return Promise.reject(e.message);
-    }
-    return Promise.reject(e);
-  }
+  return response.json()
+  // try {
+  //   const { data, resCode, resMsg, ...rest } = await response.json();
+  //   console.log({ data, resCode, resMsg, ...rest });
+  //   if (resCode !== 10000) {
+  //     message.error(resMsg);
+  //     throw new Error(resMsg);
+  //   }
+  //   return data;
+  // } catch (e) {
+  //   if (e instanceof Error) {
+  //     return Promise.reject(e.message);
+  //   }
+  //   return Promise.reject(e);
+  // }
 };
 
-export const post_formData = async (input: RequestInfo, params?: object) => {
+export const requestInitJSON = (params?: object | string) => {
+  const headers = { 'Content-Type': 'application/json' };
+  let body: string | undefined;
+  if (typeof params === 'string') {
+    body = params;
+  } else {
+    body = JSON.stringify(params);
+  }
+  return { headers, body };
+};
+
+export const fetchPost = async (
+  input: RequestInfo,
+  params?: object | string,
+) => {
   const method = 'POST';
-  const { body } = formData_handle(params);
+  const { headers, body } = requestInitJSON(params);
 
   const response = await fetchWithStatusHandler(input, {
     method,
+    headers,
     body,
   });
   const data = await readResponseAsJSON(response);
-  return { data, success: true };
+  return data;
 };

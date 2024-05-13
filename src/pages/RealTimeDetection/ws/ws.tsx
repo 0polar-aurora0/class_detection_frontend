@@ -1,7 +1,7 @@
 /*
  * @Author: fuzhenghao
  * @Date: 2024-05-09 00:49:33
- * @LastEditTime: 2024-05-09 01:04:31
+ * @LastEditTime: 2024-05-13 12:10:42
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\RealTimeDetection\ws\ws.tsx
@@ -62,10 +62,10 @@ export const WebSocketView = () => {
 
     startWebRTC();
 
-    return () => {
-      // 关闭媒体流
-      localStream.getTracks().forEach((track) => track.stop());
-    };
+    // return () => {
+    //   // 关闭媒体流
+    //   localStream.getTracks().forEach((track) => track.stop());
+    // };
   }, []);
 
   return <video ref={videoRef} autoPlay playsInline />;

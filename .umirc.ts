@@ -1,7 +1,7 @@
 /*
  * @Author: fuzhenghao
  * @Date: 2024-04-29 01:30:11
- * @LastEditTime: 2024-05-06 16:52:44
+ * @LastEditTime: 2024-05-13 11:20:12
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\.umirc.ts
@@ -25,7 +25,7 @@ export default defineConfig({
   styles: [`#root { height: 100%; }`],
   dva: {},
   proxy: {
-    context: ['/studentInfo'],
+    context: ['/studentInfoRequest', '/loginRequest'],
     target: LocalServerPost,
   },
 });

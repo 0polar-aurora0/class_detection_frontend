@@ -9,7 +9,7 @@
 
 import { post } from '@/services/utils/index';
 
-const studentInfo_commonApi = '/studentInfo'
+const studentInfo_commonApi = '/studentInfoRequest'
 const studentInfo_postApi = `${studentInfo_commonApi}/studentInfoPost`;
 
 export const queryStudentInfo = (parmas: any) => {

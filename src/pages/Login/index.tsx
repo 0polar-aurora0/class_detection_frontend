@@ -1,7 +1,7 @@
 /*
  * @Author: fuzhenghao
  * @Date: 2024-05-02 02:18:57
- * @LastEditTime: 2024-05-12 03:46:17
+ * @LastEditTime: 2024-05-13 11:27:40
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\Login\index.tsx
@@ -15,17 +15,18 @@ import { history } from 'umi';
 import styles from './index.less';
 
 type FieldType = {
-  username?: string;
-  password?: string;
+  username: string;
+  password: string;
   remember?: string;
 };
 
 const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-  let LoginResult = queryLogin({ values });
-  if (await LoginResult) {
+  let { resCode, resMes } = await queryLogin(values);
+  if (resCode == 10000) {
+    message.success(resMes);
     history.push('/home');
   } else {
-    message.error('账号密码错误');
+    message.error(resMes);
     // history.push('/register');
   }
 };

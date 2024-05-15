@@ -14,16 +14,16 @@ export const fetchWithStatusHandler = async (
   ...args: Parameters<typeof fetch>
 ): Promise<Response> => {
   try {
-    const response = await fetch(...args)
-    handleHttpError(response)
-    return response
+    const response = await fetch(...args);
+    handleHttpError(response);
+    return response;
   } catch (e) {
     if (e instanceof Error) {
-      return Promise.reject(e.message)
+      return Promise.reject(e.message);
     }
-    return Promise.reject(e)
+    return Promise.reject(e);
   }
-}
+};
 const handleHttpError = (response: Response) => {
   if (response.ok) return;
   if (response.status !== 200) {
@@ -40,7 +40,7 @@ export const formData_handle = (params?: Record<any, any>) => {
 };
 
 export const readResponseAsJSON = async (response: Response) => {
-  return response.json()
+  return response.json();
   // try {
   //   const { data, resCode, resMsg, ...rest } = await response.json();
   //   console.log({ data, resCode, resMsg, ...rest });
@@ -78,6 +78,29 @@ export const fetchPost = async (
   const response = await fetchWithStatusHandler(input, {
     method,
     headers,
+    body,
+  });
+  const data = await readResponseAsJSON(response);
+  return data;
+};
+
+export const requestInitFormData = (params?: Record<any, any>) => {
+  const formData = new FormData();
+  if (params) {
+    Object.keys(params).forEach((key) => formData.append(key, params[key]));
+  }
+  return { body: formData };
+};
+
+export const fetchPostFormData = async (
+  input: RequestInfo,
+  params?: object,
+) => {
+  const method = 'POST';
+  const { body } = requestInitFormData(params);
+
+  const response = await fetchWithStatusHandler(input, {
+    method,
     body,
   });
   const data = await readResponseAsJSON(response);

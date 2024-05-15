@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-04-29 01:30:11
- * @LastEditTime: 2024-05-15 12:04:23
+ * @LastEditTime: 2024-05-16 05:36:12
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\BlobStaticFileDetection\index.tsx
@@ -10,6 +10,7 @@ import { confidence_coefficient_data } from '@/mock/detection_function';
 import { UploadOutlined } from '@ant-design/icons';
 import { Column } from '@ant-design/plots';
 // import { useModel } from '@umijs/max';
+import { imageDetectUpload } from '@/services/imageController';
 import type { UploadProps } from 'antd';
 import {
   Button,
@@ -29,17 +30,43 @@ import styles from './index.less';
 const { Title } = Typography;
 
 const BlobStaticFileDetectionPage: React.FC = () => {
-
   let [detectState, setDetectState] = useState(false);
-  
-  let props: UploadProps = {
+
+  let image_props: UploadProps = {
     name: 'file',
-    action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-    headers: {
-      authorization: 'authorization-text',
+    // action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
+    customRequest: (options) => {
+      const { file, onSuccess, onError } = options;
+      imageDetectUpload({ file });
     },
+    // headers: {
+    //   authorization: 'authorization-text',
+    // },
     onChange(info) {
-      setDetectState(true)
+      setDetectState(true);
+      if (info.file.status !== 'uploading') {
+        console.log(info.file, info.fileList);
+      }
+      if (info.file.status === 'done') {
+        message.success(`${info.file.name} file uploaded successfully`);
+      } else if (info.file.status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+  };
+  
+  let video_props: UploadProps = {
+    name: 'file',
+    // action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
+    customRequest: (options) => {
+      const { file, onSuccess, onError } = options;
+      imageDetectUpload({ file });
+    },
+    // headers: {
+    //   authorization: 'authorization-text',
+    // },
+    onChange(info) {
+      setDetectState(true);
       if (info.file.status !== 'uploading') {
         console.log(info.file, info.fileList);
       }
@@ -81,8 +108,6 @@ const BlobStaticFileDetectionPage: React.FC = () => {
     },
   };
 
-
-
   let upload_group_class = detectState
     ? styles.upload_group_detect
     : styles.upload_group_unDetect;
@@ -98,10 +123,10 @@ const BlobStaticFileDetectionPage: React.FC = () => {
         <div className={styles.detection_sourse}>
           <div className={styles.detection_sourse_main}>
             <div className={upload_group_class}>
-              <Upload className={styles.upload_component} {...props}>
+              <Upload className={styles.upload_component} {...image_props}>
                 <Button icon={<UploadOutlined />}>进行图片检测</Button>
               </Upload>
-              <Upload className={styles.upload_component} {...props}>
+              <Upload className={styles.upload_component} {...video_props}>
                 <Button icon={<UploadOutlined />}>进行视频检测</Button>
               </Upload>
             </div>

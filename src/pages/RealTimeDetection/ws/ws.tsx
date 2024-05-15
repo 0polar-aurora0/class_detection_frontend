@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-05-09 00:49:33
- * @LastEditTime: 2024-05-16 03:02:00
+ * @LastEditTime: 2024-05-16 06:48:40
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\RealTimeDetection\ws\ws.tsx
@@ -17,11 +17,13 @@ import {
   Space,
   Typography,
 } from 'antd';
-import lodash from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './ws.less';
 const { Title } = Typography;
+
+var time_start: moment.Moment;
+var time_end: moment.Moment;
 
 export const WebSocketView = () => {
   let localStream: MediaStream | null = null;
@@ -31,8 +33,13 @@ export const WebSocketView = () => {
   const canvasOneRef = useRef(null);
   const canvasDetectRef = useRef(null);
   let [cameraState, setCameraState] = useState(false);
-  let [detectData, setDetectData] = useState({});
+  let [detectData, setDetectData] = useState<any>();
   var loopCaptureFrameId: string | number | NodeJS.Timeout | undefined;
+
+  // 更新对象属性的方法
+  // const handleProPChange = (name: any, value: any) => {
+  //   setDetectData({ ...detectData, [name]: value });
+  // };
 
   //获取摄像头权限
   const getCameraPermission = async () => {
@@ -71,42 +78,86 @@ export const WebSocketView = () => {
     }
   }
 
-  function detectCanvasDraw() {
-    let canvas = canvasOneRef.current;
+  let detectCanvasDraw = (data: Object) => {
+    let canvas = canvasDetectRef.current;
     let context = canvas.getContext('2d');
     let canvasSend = canvasRef.current;
-    let { imageName, resultInfo } = detectData;
-    let position = resultInfo.location_list[0];
-    // 将视频帧绘制到canvas上
-    // context.drawImage(video, 0, 0, video.width, video.height);
+
     context.drawImage(canvasSend, 0, 0, 400, 300);
-    context.strokeStyle = 'blue'; // 框线颜色
-    context.lineWidth = 2; // 框线宽度
-    let x_min = lodash._min(position[0], position[1]);
-    let x_max = lodash._max(position[0], position[1]);
-    let y_min = lodash._min(position[2], position[3]);
-    let y_max = lodash._min(position[2], position[3]);
-    // let left_top = [x_min, y_min];
-    // let left_bottom = [x_min, y_max];
-    // let right_top = [x_max, y_min];
-    // let right_bottom = [x_max, y_max];
-    // 绘制一个框
-    context.beginPath();
-    // context.moveTo(left_top[0], left_top[1]);
-    context.rect(x_min, y_min, x_max - x_min, y_max - y_min); // x, y, 宽度, 高度
-    context.closePath();
-    context.stroke(); // 绘制框线
-  }
+    console.log({ data });
+
+    let imageName = data?.imageName;
+    let resultInfo = data?.resultInfo;
+
+    // let resultInfo_obj = Object.fromEntries(resultInfo.entries());
+
+    if (resultInfo && resultInfo?.location_list) {
+      // handleProPChange('target_nums', resultInfo.target_nums);
+
+      for (let index = 0; index < resultInfo.location_list.length; index++) {
+        let position = resultInfo.location_list[0];
+        // 将视频帧绘制到canvas上
+        // context.drawImage(video, 0, 0, video.width, video.height);
+        context.strokeStyle = 'blue'; // 框线颜色
+        context.lineWidth = 2; // 框线宽度
+        let x_min = position[0];
+        let y_min = position[1];
+        let x_max = position[2];
+        let y_max = position[3];
+        // let left_top = [x_min, y_min];
+        // let left_bottom = [x_min, y_max];
+        // let right_top = [x_max, y_min];
+        // let right_bottom = [x_max, y_max];
+        // 绘制一个框
+
+        let width = x_max - x_min;
+        let height = y_max - y_min;
+        context.beginPath();
+        console.log({
+          x_min,
+          y_min,
+          width,
+          height,
+        });
+
+        // context.moveTo(left_top[0], left_top[1]);
+        context.rect(x_min, y_min, x_max - x_min, y_max - y_min); // x, y, 宽度, 高度
+        context.closePath();
+        context.stroke(); // 绘制框线
+
+        // 设置字体样式
+        context.font = '30px Arial';
+        context.fillStyle = 'red';
+
+        // 在Canvas上写字
+        context.fillText(`${position}`, x_min + width / 2, y_min);
+        setDetectData({
+          x_min,
+          y_min,
+          x_max,
+          y_max,
+          width,
+          height,
+          target_nums: resultInfo?.target_nums,
+          choose_list: resultInfo?.choose_list,
+        });
+      }
+    }
+
+    console.log({ detectData });
+  };
 
   function loopCaptureFrame() {
     let video = videoRef.current;
     let canvas = canvasRef.current;
     let imageData = captureFrame(video, canvas);
-    let base64 = imageData.replace(/^data:image\/\w+;base64,/, '');
-    var dataBuffer = Buffer.from(base64, 'base64'); //把base64码转成buffer对象，
+    let base64 = imageData?.replace(/^data:image\/\w+;base64,/, '');
+    var dataBuffer = Buffer.from(base64, 'base64') || null; //把base64码转成buffer对象，
 
     if (ws) {
-      ws.send(dataBuffer);
+      dataBuffer && ws.send(dataBuffer);
+      time_start = moment();
+      console.log(time_start.format('YYYY MM DD hh:mm:ss'));
       loopCaptureFrameId = setTimeout(loopCaptureFrame, 3000); // 1000毫秒 = 1秒
     } else {
       message.error('websocket/socket.io/webRTC均未连接');
@@ -189,11 +240,21 @@ export const WebSocketView = () => {
     ws = new WebSocket('ws://localhost:7001');
     ws.onmessage = (event) => {
       console.log('收到服务器消息：', event.data);
-      setDetectData(event.data);
+      let data = JSON.parse(event.data);
+      // console.log({ data });
+      time_end = moment();
+      console.log(time_end.format('YYYY MM DD hh:mm:ss'));
+
+      // setDetectData(data);
       //启用一帧绘制
-      detectCanvasDraw();
+      detectCanvasDraw(data);
     };
   }, []);
+
+  // let optionList = () = {
+  //   let listInfo: [];
+  //   return 
+  // }
 
   return (
     <div className={styles.container}>
@@ -249,6 +310,9 @@ export const WebSocketView = () => {
             <div className={styles.detection_info}>
               <Title level={3}>检测结果</Title>
               <Descriptions title="检测信息">
+                <Descriptions.Item label="当前目标总数">
+                  {detectData?.target_nums}
+                </Descriptions.Item>
                 <Descriptions.Item
                   label="当前选择目标"
                   contentStyle={{ marginTop: '-5px' }}
@@ -260,20 +324,27 @@ export const WebSocketView = () => {
                     variant="borderless"
                     placeholder="请选择目标"
                     // style={{ flex: 1 }}
-                    options={[
-                      { value: 0, label: '全部' },
-                      { value: 1, label: '小明' },
-                      { value: 2, label: '小张' },
-                      { value: 3, label: '小李', disabled: true },
-                    ]}
+                    options={
+                      detectData?.choose_list
+                        ? detectData?.choose_list.map(
+                            (index: any, value: any) => {
+                              return { value, key: index };
+                            },
+                          )
+                        : []
+                    }
                   />
                 </Descriptions.Item>
                 <Descriptions.Item label="目标学号">未注册</Descriptions.Item>
                 <Descriptions.Item label="检测花费时间">
-                  0.06s
+                  {time_start && time_end
+                    ? `${moment
+                        .duration(time_end.diff(time_start))
+                        .asMilliseconds()}ms`
+                    : ''}
                 </Descriptions.Item>
                 <Descriptions.Item label="当前检测开始时间">
-                  {moment().format('YYYY MM DD h:mm:ss')}
+                  {time_start?.format('YYYY MM DD hh:mm:ss')}
                 </Descriptions.Item>
               </Descriptions>
               <Descriptions title="置信度比例">
@@ -284,10 +355,18 @@ export const WebSocketView = () => {
                 <Descriptions.Item label="匹配类型">玩手机</Descriptions.Item>
               </Descriptions>
               <Descriptions title="目标位置">
-                <Descriptions.Item label="X轴-左侧">122</Descriptions.Item>
-                <Descriptions.Item label="X轴-右侧">156</Descriptions.Item>
-                <Descriptions.Item label="Y轴-左侧">228</Descriptions.Item>
-                <Descriptions.Item label="Y轴-右侧">289</Descriptions.Item>
+                <Descriptions.Item label="X轴-左侧">
+                  {detectData?.x_min}
+                </Descriptions.Item>
+                <Descriptions.Item label="X轴-右侧">
+                  {detectData?.x_max}
+                </Descriptions.Item>
+                <Descriptions.Item label="Y轴-左侧">
+                  {detectData?.y_min}
+                </Descriptions.Item>
+                <Descriptions.Item label="Y轴-右侧">
+                  {detectData?.y_max}
+                </Descriptions.Item>
               </Descriptions>
             </div>
           </div>

@@ -25,7 +25,7 @@ export default defineConfig({
   styles: [`#root { height: 100%; }`],
   dva: {},
   proxy: {
-    context: ['/studentInfoRequest', '/loginRequest'],
+    context: ['/studentInfoRequest', '/loginRequest', '/detectionRequest'],
     target: LocalServerPost,
   },
 });

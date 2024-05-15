@@ -1,12 +1,11 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-05-09 00:49:33
- * @LastEditTime: 2024-05-16 06:48:40
+ * @LastEditTime: 2024-05-16 07:36:10
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\RealTimeDetection\ws\ws.tsx
  */
-import { confidence_coefficient_data } from '@/mock/detection_function';
 import { Column } from '@ant-design/plots';
 import {
   Button,
@@ -24,6 +23,8 @@ const { Title } = Typography;
 
 var time_start: moment.Moment;
 var time_end: moment.Moment;
+
+const CH_names = ['举手', '阅读', '写作', '使用手机', '低头', '靠在桌子上'];
 
 export const WebSocketView = () => {
   let localStream: MediaStream | null = null;
@@ -140,6 +141,9 @@ export const WebSocketView = () => {
           height,
           target_nums: resultInfo?.target_nums,
           choose_list: resultInfo?.choose_list,
+          conf_list: resultInfo?.conf_list[0],
+          cls_list: resultInfo?.cls_list[0],
+          cls_percents: resultInfo?.cls_percents,
         });
       }
     }
@@ -176,6 +180,17 @@ export const WebSocketView = () => {
     videoRef.current.srcObject = null;
   };
 
+  let confidence_coefficient_data = () => {
+    let list: { type: string; value: any; }[] = [];
+    CH_names.map((value, index) => {
+      list.push({
+        type: value,
+        value: detectData?.cls_percents[index] || 0,
+      });
+    });
+    return list
+  };
+
   const config = {
     width: 500,
     height: 300,
@@ -183,7 +198,7 @@ export const WebSocketView = () => {
     paddingLeft: 0,
     xField: 'type',
     yField: 'value',
-    data: confidence_coefficient_data,
+    data: confidence_coefficient_data(),
     // legend: false,
     // percent: true,
     style: {
@@ -251,9 +266,15 @@ export const WebSocketView = () => {
     };
   }, []);
 
-  // let optionList = () = {
+  // let optionList = () => {
   //   let listInfo: [];
-  //   return 
+  //   if (detectData?.choose_list) {
+  //     detectData?.choose_list.map((value, index)=>{
+
+  //       listInfo.push({value,})
+  //     })
+  //   }
+  //   return listInfo
   // }
 
   return (
@@ -327,8 +348,8 @@ export const WebSocketView = () => {
                     options={
                       detectData?.choose_list
                         ? detectData?.choose_list.map(
-                            (index: any, value: any) => {
-                              return { value, key: index };
+                            (value: any, index: any) => {
+                              return { value: index, label: value };
                             },
                           )
                         : []
@@ -351,8 +372,12 @@ export const WebSocketView = () => {
                 <Descriptions.Item label="图表">
                   <Column {...config} />
                 </Descriptions.Item>
-                <Descriptions.Item label="最高置信度">65%</Descriptions.Item>
-                <Descriptions.Item label="匹配类型">玩手机</Descriptions.Item>
+                <Descriptions.Item label="最高置信度">
+                  {detectData?.conf_list}
+                </Descriptions.Item>
+                <Descriptions.Item label="匹配类型">
+                  {CH_names[detectData?.cls_list] || ''}
+                </Descriptions.Item>
               </Descriptions>
               <Descriptions title="目标位置">
                 <Descriptions.Item label="X轴-左侧">

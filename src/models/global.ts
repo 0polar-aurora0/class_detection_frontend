@@ -1,8 +1,8 @@
 /*
- * @Author: fuzhenghao
+ * @Author: wanglinxiang
  * @Date: 2024-04-29 01:30:11
  * @LastEditTime: 2024-05-02 02:33:43
- * @LastEditors: fuzhenghao
+ * @LastEditors: wanglinxiang
  * @Description: 
  * @FilePath: \class_detection_frontend\src\models\global.ts
  */

@@ -1,10 +1,10 @@
 import { DescriptionsProps } from 'antd';
 
 /*
- * @Author: fuzhenghao
+ * @Author: wanglinxiang
  * @Date: 2024-05-11 23:44:09
  * @LastEditTime: 2024-05-12 01:29:19
- * @LastEditors: fuzhenghao
+ * @LastEditors: wanglinxiang
  * @Description:
  * @FilePath: \class_detection_frontend\src\mock\detection_function.ts
  */

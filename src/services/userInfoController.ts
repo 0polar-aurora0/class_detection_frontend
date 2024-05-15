@@ -1,8 +1,8 @@
 /*
- * @Author: fuzhenghao
+ * @Author: wanglinxiang
  * @Date: 2024-05-05 00:27:42
  * @LastEditTime: 2024-05-13 11:21:02
- * @LastEditors: fuzhenghao
+ * @LastEditors: wanglinxiang
  * @Description:
  * @FilePath: \class_detection_frontend\src\services\userInfoController.ts
  */

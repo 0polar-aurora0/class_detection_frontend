@@ -1,8 +1,8 @@
 /*
- * @Author: fuzhenghao
+ * @Author: wanglinxiang
  * @Date: 2024-05-05 01:23:48
  * @LastEditTime: 2024-05-09 17:59:14
- * @LastEditors: fuzhenghao
+ * @LastEditors: wanglinxiang
  * @Description: 
  * @FilePath: \class_detection_frontend\src\pages\DetectionHistory\index.tsx
  */

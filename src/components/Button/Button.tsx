@@ -1,8 +1,8 @@
 /*
- * @Author: fuzhenghao
+ * @Author: wanglinxiang
  * @Date: 2024-05-02 22:53:29
  * @LastEditTime: 2024-05-02 22:53:51
- * @LastEditors: fuzhenghao
+ * @LastEditors: wanglinxiang
  * @Description:
  * @FilePath: \class_detection_frontend\src\components\Button\Button.tsx
  */

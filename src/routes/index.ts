@@ -1,8 +1,8 @@
 /*
- * @Author: fuzhenghao
+ * @Author: wanglinxiang
  * @Date: 2024-05-02 22:26:48
  * @LastEditTime: 2024-05-06 18:16:37
- * @LastEditors: fuzhenghao
+ * @LastEditors: wanglinxiang
  * @Description:
  * @FilePath: \class_detection_frontend\src\routes\index.ts
  */

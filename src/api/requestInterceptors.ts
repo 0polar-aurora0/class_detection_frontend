@@ -22,7 +22,7 @@ interface ResponseStructure {
 // 运行时配置
 export const request: RequestConfig = {
   // 统一的请求设定
-  timeout: 1000,
+  // timeout: 1000,
   headers: {'X-Requested-With': 'XMLHttpRequest'},
 
   // 错误处理： umi@3 的错误处理方案。

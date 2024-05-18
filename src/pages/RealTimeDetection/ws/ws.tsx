@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-05-09 00:49:33
- * @LastEditTime: 2024-05-18 01:58:56
+ * @LastEditTime: 2024-05-19 02:11:00
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\RealTimeDetection\ws\ws.tsx
@@ -21,7 +21,6 @@ import {
   Button,
   Descriptions,
   Divider,
-  Select,
   Space,
   Typography,
   message,
@@ -34,7 +33,6 @@ const { Title } = Typography;
 var time_start: moment.Moment;
 var time_end: moment.Moment;
 
-const CH_names = ['举手', '阅读', '写作', '使用手机', '低头', '靠在桌子上'];
 const rectColor = ['blue', 'yellow', 'red'];
 
 export const WebSocketView = () => {
@@ -346,9 +344,9 @@ export const WebSocketView = () => {
                 </Descriptions.Item>
                 <Descriptions.Item
                   label="当前选择目标"
-                  contentStyle={{ marginTop: '-5px' }}
+                  // contentStyle={{ marginTop: '-5px' }}
                 >
-                  <Select
+                  {/* <Select
                     // defaultValue="lucy"
                     // style={{ width: 120 }}
                     // onChange={handleChange}
@@ -364,9 +362,10 @@ export const WebSocketView = () => {
                           )
                         : []
                     }
-                  />
+                  /> */}
+                  全部
                 </Descriptions.Item>
-                <Descriptions.Item label="目标学号">未注册</Descriptions.Item>
+                {/* <Descriptions.Item label="目标学号">未注册</Descriptions.Item> */}
                 <Descriptions.Item label="检测花费时间">
                   {time_start && time_end
                     ? `${moment
@@ -382,27 +381,27 @@ export const WebSocketView = () => {
                 <Descriptions.Item label="图表">
                   <Column {...config} />
                 </Descriptions.Item>
-                <Descriptions.Item label="最高置信度">
+                {/* <Descriptions.Item label="最高置信度">
                   {detectData?.conf_list}
-                </Descriptions.Item>
-                <Descriptions.Item label="匹配类型">
+                </Descriptions.Item> */}
+                {/* <Descriptions.Item label="匹配类型">
                   {CH_names[detectData?.cls_list] || ''}
-                </Descriptions.Item>
+                </Descriptions.Item> */}
               </Descriptions>
-              <Descriptions title="目标位置">
+              {/* <Descriptions title="目标位置">
                 <Descriptions.Item label="X轴-左侧">
-                  {detectData?.x_min}
+                  {detectData?.corporation_x_min}
                 </Descriptions.Item>
                 <Descriptions.Item label="X轴-右侧">
-                  {detectData?.x_max}
+                  {detectData?.corporation_x_max}
                 </Descriptions.Item>
                 <Descriptions.Item label="Y轴-左侧">
-                  {detectData?.y_min}
+                  {detectData?.corporation_y_min}
                 </Descriptions.Item>
                 <Descriptions.Item label="Y轴-右侧">
-                  {detectData?.y_max}
+                  {detectData?.corporation_y_max}
                 </Descriptions.Item>
-              </Descriptions>
+              </Descriptions> */}
             </div>
           </div>
         ) : null}

@@ -1,12 +1,17 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-05-05 01:23:48
- * @LastEditTime: 2024-05-09 17:59:14
- * @LastEditors: wanglinxiang
- * @Description: 
+ * @LastEditTime: 2024-05-19 02:42:58
+ * @LastEditors: fuzhenghao
+ * @Description:
  * @FilePath: \class_detection_frontend\src\pages\DetectionHistory\index.tsx
  */
+import { names_CN } from '@/config/static';
 import services from '@/services';
+import {
+  deleteImageDetectHistory,
+  queryImageDetectHistory,
+} from '@/services/imageDetectHistory';
 import {
   ActionType,
   FooterToolbar,
@@ -14,7 +19,7 @@ import {
   ProDescriptionsItemProps,
   ProTable,
 } from '@ant-design/pro-components';
-import { Button, Divider, Drawer, message } from 'antd';
+import { Button, Drawer, message, Select } from 'antd';
 import React, { useRef, useState } from 'react';
 import CreateForm from './components/CreateForm';
 import UpdateForm, { FormValueType } from './components/UpdateForm';
@@ -97,15 +102,33 @@ const StudentInfoManage: React.FC<unknown> = () => {
   const actionRef = useRef<ActionType>();
   const [row, setRow] = useState<API.UserInfo>();
   const [selectedRowsState, setSelectedRows] = useState<API.UserInfo[]>([]);
-  const columns: ProDescriptionsItemProps<API.UserInfo>[] = [
+
+  const deleteLocalRecord = async (record_id: string) => {
+    console.log({ record_id });
+    await deleteImageDetectHistory({ record_id }).then(
+      ({ resCode, resMes }) => {
+        if (resCode === 10000) {
+          message.success(resMes);
+          actionRef.current?.reload();
+        }
+      },
+    );
+  };
+
+  const columns: ProDescriptionsItemProps<any>[] = [
     {
-      title: '检测编号',
-      dataIndex: 'detection_number',
+      title: '唯一标识id',
+      dataIndex: 'record_id',
+      valueType: 'text',
+    },
+    {
+      title: '文件id',
+      dataIndex: 'result_file_id',
       valueType: 'text',
     },
     {
       title: '学生id',
-      dataIndex: 'studentId',
+      dataIndex: 'student_id',
     },
     {
       title: '检测时间',
@@ -113,9 +136,25 @@ const StudentInfoManage: React.FC<unknown> = () => {
       hideInForm: true,
     },
     {
-      title: '检测结果',
-      dataIndex: 'detection_result',
+      title: '检测图片id',
+      dataIndex: 'image_id',
       hideInForm: true,
+    },
+    {
+      title: '检测录像id',
+      dataIndex: 'video_id',
+      hideInForm: true,
+    },
+    {
+      title: '检测结果',
+      dataIndex: 'detect_result_type',
+      hideInForm: true,
+      render: (_, record) => {
+        return names_CN[_];
+      },
+      renderFormItem: () => {
+        return <Select></Select>
+      }
     },
     {
       title: '操作',
@@ -123,7 +162,7 @@ const StudentInfoManage: React.FC<unknown> = () => {
       valueType: 'option',
       render: (_, record) => (
         <>
-          <a
+          {/* <a
             onClick={() => {
               handleUpdateModalVisible(true);
               setStepFormValues(record);
@@ -132,7 +171,14 @@ const StudentInfoManage: React.FC<unknown> = () => {
             查看检测文件
           </a>
           <Divider type="vertical" />
-          <a href="">查看当前学生信息</a>
+          <a href="">查看当前学生信息</a> */}
+
+          <Button
+            type="text"
+            onClick={() => deleteLocalRecord(record.record_id)}
+          >
+            删除当前记录
+          </Button>
         </>
       ),
     },
@@ -141,7 +187,7 @@ const StudentInfoManage: React.FC<unknown> = () => {
   return (
     <>
       <ProTable<API.UserInfo>
-        headerTitle="学生检测记录管理"
+        headerTitle="帧检测记录管理"
         actionRef={actionRef}
         rowKey="id"
         search={{
@@ -157,7 +203,7 @@ const StudentInfoManage: React.FC<unknown> = () => {
         //   </Button>,
         // ]}
         request={async (params, sorter, filter) => {
-          const { data, success } = await queryUserList({
+          const { data, success } = await queryImageDetectHistory({
             ...params,
             // FIXME: remove @ts-ignore
             // @ts-ignore
@@ -165,7 +211,7 @@ const StudentInfoManage: React.FC<unknown> = () => {
             filter,
           });
           return {
-            data: data?.list || [],
+            data: data || [],
             success,
           };
         }}

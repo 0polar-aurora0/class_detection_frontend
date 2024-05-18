@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-04-29 01:30:11
- * @LastEditTime: 2024-05-16 05:36:12
+ * @LastEditTime: 2024-05-19 03:45:42
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\BlobStaticFileDetection\index.tsx
@@ -34,10 +34,9 @@ const BlobStaticFileDetectionPage: React.FC = () => {
 
   let image_props: UploadProps = {
     name: 'file',
-    // action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
     customRequest: (options) => {
       const { file, onSuccess, onError } = options;
-      imageDetectUpload({ file });
+      imageDetectUpload({ image: file });
     },
     // headers: {
     //   authorization: 'authorization-text',
@@ -54,7 +53,7 @@ const BlobStaticFileDetectionPage: React.FC = () => {
       }
     },
   };
-  
+
   let video_props: UploadProps = {
     name: 'file',
     // action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
@@ -88,14 +87,14 @@ const BlobStaticFileDetectionPage: React.FC = () => {
     data: confidence_coefficient_data,
     // legend: false,
     // percent: true,
-    style: {
-      fill: ({ type }) => {
-        if (type === '10-30分' || type === '30+分') {
-          return '#22CBCC';
-        }
-        return '#2989FF';
-      },
-    },
+    // style: {
+    //   fill: ({ type }) => {
+    //     if (type === '10-30分' || type === '30+分') {
+    //       return '#22CBCC';
+    //     }
+    //     return '#2989FF';
+    //   },
+    // },
     label: {
       text: (originData: { value: string }) => {
         const val = parseFloat(originData.value);

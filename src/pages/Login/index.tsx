@@ -1,15 +1,16 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-05-02 02:18:57
- * @LastEditTime: 2024-05-13 21:23:12
+ * @LastEditTime: 2024-05-18 18:52:25
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\Login\index.tsx
  */
 
-import { queryLogin } from '@/services/userInfoController';
+import { postRegister, queryLogin } from '@/services/userInfoController';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input, message } from 'antd';
+import { Button, Checkbox, Form, Input, Modal, message } from 'antd';
 import React, { useState } from 'react';
 import { history } from 'umi';
 import styles from './index.less';
@@ -20,29 +21,55 @@ type FieldType = {
   remember?: string;
 };
 
-const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-  let { resCode, resMes } = await queryLogin(values);
-  if (resCode == 10000) {
-    message.success(resMes);
-    history.push('/home');
-  } else {
-    message.error(resMes);
-    // history.push('/register');
-  }
-};
-
-const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-  history.push('/home');
-  console.log('Failed:', errorInfo);
-};
-
-const transfer_register = () => {
-  console.log('transfer_register');
-};
-
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    let { resCode, resMes } = await queryLogin(values);
+    if (resCode == 10000) {
+      handleCancel();
+      message.success(resMes);
+      history.push('/home');
+    } else {
+      message.error(resMes);
+    }
+  };
+
+  const onRegisterFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    let { resCode, resMes } = await postRegister(values);
+    if (resCode == 10000) {
+      handleCancel();
+      message.success(resMes);
+      history.push('/login');
+    } else {
+      message.error(resMes);
+    }
+  };
+
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
+    errorInfo,
+  ) => {
+    history.push('/home');
+    console.log('Failed:', errorInfo);
+  };
+
+  const transfer_register = () => {
+    // console.log('transfer_register');
+    setIsModalOpen(true);
+  };
 
   async function submit() {
     history.push('/home');
@@ -112,6 +139,61 @@ const LoginPage: React.FC = () => {
           </Button>
         </div>
       </div>
+      <Modal
+        title="账号注册"
+        open={isModalOpen}
+        // onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Form
+          name="normal_register"
+          className="register-form"
+          initialValues={{ remember: true }}
+          onFinish={onRegisterFinish}
+        >
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: '请输入用户名!' }]}
+          >
+            <Input
+              prefix={<UserOutlined className="site-form-item-icon" />}
+              placeholder="用户名"
+            />
+          </Form.Item>
+          {/* <Form.Item
+            name="email"
+            rules={[{ required: true, message: '请输入邮箱地址!' }]}
+          >
+            <Input
+              prefix={<MailOutlined className="site-form-item-icon" />}
+              type="email"
+              placeholder="邮箱地址"
+            />
+          </Form.Item> */}
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: '请输入密码!' }]}
+          >
+            <Input
+              prefix={<LockOutlined className="site-form-item-icon" />}
+              type="password"
+              placeholder="密码"
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="register-form-button"
+              block
+            >
+              注册
+            </Button>
+            已有账号？<a href="/login">现在登录!</a>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

@@ -95,6 +95,7 @@ const DetectionHistory: React.FC<unknown> = () => {
       title: '标识id',
       dataIndex: 'id',
       tip: '标识id是唯一的 key',
+      hideInForm: true,
       formItemProps: {
         rules: [
           {
@@ -112,6 +113,8 @@ const DetectionHistory: React.FC<unknown> = () => {
       title: '检测特征',
       dataIndex: 'detection_face_feateur',
       valueType: 'text',
+      hideInSearch: true,
+      hideInForm: true,
     },
     {
       title: '头像',
@@ -151,11 +154,10 @@ const DetectionHistory: React.FC<unknown> = () => {
   ) => {
     const { data, success } = await queryStudentInfo({
       ...params,
-      // FIXME: remove @ts-ignore
-      // @ts-ignore
       sorter,
       filter,
     });
+
     return {
       data: data || [],
       success,

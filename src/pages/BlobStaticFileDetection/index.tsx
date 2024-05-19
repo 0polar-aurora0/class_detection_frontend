@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-04-29 01:30:11
- * @LastEditTime: 2024-05-19 03:45:42
+ * @LastEditTime: 2024-05-19 14:11:26
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\BlobStaticFileDetection\index.tsx
@@ -16,12 +16,11 @@ import {
   Button,
   Descriptions,
   Divider,
-  Image,
-  message,
   Select,
   Space,
   Typography,
   Upload,
+  message,
 } from 'antd';
 import moment from 'moment';
 import React, { useState } from 'react';
@@ -30,17 +29,57 @@ import styles from './index.less';
 const { Title } = Typography;
 
 const BlobStaticFileDetectionPage: React.FC = () => {
+  let [file, setFile] = useState<any>();
   let [detectState, setDetectState] = useState(false);
+  let canvasRef: any;
 
   let image_props: UploadProps = {
     name: 'file',
-    customRequest: (options) => {
+    customRequest: async (options) => {
       const { file, onSuccess, onError } = options;
-      imageDetectUpload({ image: file });
+
+      await imageDetectUpload({ image: file });
+      // let context = canvasRef.current.getContext('2d');
+      // let canvasSend = canvasRef.current;
+      // context.drawImage(canvasSend, 0, 0, 400, 300);
+      // let { imageInfo, detectTargetList, percentList, totalTargetNum } = data;
+      // for (let index = 0; index < detectTargetList.length; index++) {
+      //   let detectLocalTarget = detectTargetList[index];
+      //   // 将视频帧绘制到canvas上
+      //   // context.drawImage(video, 0, 0, video.width, video.height);
+      //   context.strokeStyle = rectColor[index / 3]; // 框线颜色
+      //   context.lineWidth = 2; // 框线宽度
+      //   let {
+      //     corporation_x_min,
+      //     corporation_y_min,
+      //     corporation_x_max,
+      //     corporation_y_max,
+      //     chooseName,
+      //     corporationList,
+      //   } = detectLocalTarget;
+      //   // 绘制一个框
+      //   let width = corporation_x_max - corporation_x_min;
+      //   let height = corporation_y_max - corporation_y_min;
+      //   context.beginPath();
+      //   context.rect(corporation_x_min, corporation_y_min, width, height); // x, y, 宽度, 高度
+      //   context.closePath();
+      //   context.stroke(); // 绘制框线
+      //   // 设置字体样式
+      //   context.font = '15px Arial';
+      //   context.fillStyle = 'red';
+      //   // 在Canvas上写字
+      //   context.fillText(
+      //     `${chooseName}:${corporationList}`,
+      //     corporation_x_min,
+      //     corporation_y_min,
+      //   );
+      //   console.log({ width, height });
+      // }
     },
     // headers: {
     //   authorization: 'authorization-text',
     // },
+
     onChange(info) {
       setDetectState(true);
       if (info.file.status !== 'uploading') {
@@ -61,6 +100,7 @@ const BlobStaticFileDetectionPage: React.FC = () => {
       const { file, onSuccess, onError } = options;
       imageDetectUpload({ file });
     },
+
     // headers: {
     //   authorization: 'authorization-text',
     // },
@@ -130,10 +170,17 @@ const BlobStaticFileDetectionPage: React.FC = () => {
               </Upload>
             </div>
             {detectState ? (
-              <Image
-                className={styles.imageShow}
-                src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-              />
+              <>
+                {/* <Image className={styles.imageShow} src={file.url} /> */}
+                <canvas
+                  className={styles.cameraCanvas}
+                  ref={canvasRef}
+                  width="400"
+                  height="300"
+                  // style={{ display: !cameraState ? 'show' : 'none' }}
+                  // style={{ display: 'none' }}
+                />
+              </>
             ) : (
               <div className={styles.imageUnShow}>请选择你要检测的功能</div>
             )}

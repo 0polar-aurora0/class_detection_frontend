@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-05-09 00:49:33
- * @LastEditTime: 2024-05-19 02:11:00
+ * @LastEditTime: 2024-05-19 11:47:18
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\RealTimeDetection\ws\ws.tsx

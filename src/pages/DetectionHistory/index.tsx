@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-05-05 01:23:48
- * @LastEditTime: 2024-05-19 02:42:58
+ * @LastEditTime: 2024-05-19 18:19:41
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\DetectionHistory\index.tsx
@@ -175,6 +175,7 @@ const StudentInfoManage: React.FC<unknown> = () => {
 
           <Button
             type="text"
+            danger
             onClick={() => deleteLocalRecord(record.record_id)}
           >
             删除当前记录

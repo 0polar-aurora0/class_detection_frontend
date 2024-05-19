@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-05-09 00:49:33
- * @LastEditTime: 2024-05-19 11:47:18
+ * @LastEditTime: 2024-05-19 20:07:15
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\RealTimeDetection\ws\ws.tsx
@@ -120,7 +120,7 @@ export const WebSocketView = () => {
     if (ws) {
       dataBuffer && ws.send(dataBuffer);
       time_start = moment();
-      console.log(time_start.format('YYYY MM DD hh:mm:ss'));
+      // console.log(time_start.format('YYYY MM DD hh:mm:ss'));
       loopCaptureFrameId = setTimeout(loopCaptureFrame, 3000); // 1000毫秒 = 1秒
     } else {
       message.error(defalut_connection_connect_noconnect_info);

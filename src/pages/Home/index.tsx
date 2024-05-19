@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-04-29 01:30:11
- * @LastEditTime: 2024-05-19 14:12:01
+ * @LastEditTime: 2024-05-19 15:04:21
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\Home\index.tsx
@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
   return (
     <div className={styles.container}>
       <Guide name={trim(name)} />
-      <div>
+      <div className={styles.introduce}>
         本系统使用YOLO
         v8为行为识别的网络模型，并基于React+Node.js+便携型Sqlit数据库技术，设计实现了学生课堂行为检测系统，系统设计中包括前端界面设计和后端的数据处理等。前端采用
         Umi.js为前端框架，Dva.js完善前端数据工作流，并使用Ant

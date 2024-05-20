@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-04-29 01:30:11
- * @LastEditTime: 2024-05-20 14:12:29
+ * @LastEditTime: 2024-05-20 19:10:51
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\BlobStaticFileDetection\index.tsx
@@ -10,7 +10,9 @@ import { UploadOutlined } from '@ant-design/icons';
 import { Column } from '@ant-design/plots';
 // import { useModel } from '@umijs/max';
 import { names_CN } from '@/config/static';
+import { file_get } from '@/services/fileController';
 import { imageDetectUpload } from '@/services/imageController';
+import { rectColor } from '@/services/utils/canvas';
 import type { UploadProps } from 'antd';
 import {
   Button,
@@ -32,27 +34,95 @@ const BlobStaticFileDetectionPage: React.FC = () => {
   let [detectState, setDetectState] = useState(false);
   let [selectValue, SetSelectValue] = useState<number>(0);
   let canvasRef = useRef<any>(null);
+  // let loopCanvasDrawId
+  // function loopCanvasDraw() {
+  //     loopCanvasDrawId = setTimeout(loopCanvasDraw, 3000); // 1000毫秒 = 1秒
+  // }
 
   useEffect(() => {
     if (resList.length > 0) {
-      console.log('开始绘制图像');
-      let { imageName } = resList[0];
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
+      const context = canvas.getContext('2d');
+      if (context) {
+        for (let index = 0; index < resList.length; index++) {
+          let element = resList[index];
+          console.log({ element });
+          console.log('开始绘制图像');
+          let { imageName } = element;
 
-      // 加载本地图片
-      const image = new Image();
-      let imgSrc = `http://localhost:7001/public/${imageName}`;
-      console.log({ imgSrc });
-      image.src = imgSrc;
-      const drawImage = () => {
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-      };
+          //加载图片
+          fetch(`${file_get}?filename=${imageName}`, {
+            headers: {
+              'Content-Type': 'application/json', // 设置请求头 Content-Type
+            },
+          }) // 请求图片的路径
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.arrayBuffer(); // 返回图片的二进制数据
+            })
+            .then((buffer) => {
+              // 将 ArrayBuffer 转换为 Blob 对象
+              const blob = new Blob([buffer]);
 
-      if (image.complete) {
-        drawImage();
-      } else {
-        image.onload = drawImage;
+              // 使用 createImageBitmap 方法创建图像位图
+              return createImageBitmap(blob);
+            })
+            .then((bitmap) => {
+              // 图像位图创建成功后绘制到 canvas 上
+              canvas.width = bitmap.width;
+              canvas.height = bitmap.height;
+              context.drawImage(bitmap, 0, 0);
+              let { imageInfo, detectTargetList, percentList, totalTargetNum } =
+                element.imageInfo;
+
+              for (let index = 0; index < detectTargetList.length; index++) {
+                let detectLocalTarget = detectTargetList[index];
+                // 将视频帧绘制到canvas上
+                // context.drawImage(video, 0, 0, video.width, video.height);
+                context.strokeStyle = rectColor[index / 3]; // 框线颜色
+                context.lineWidth = 2; // 框线宽度
+
+                let {
+                  corporation_x_min,
+                  corporation_y_min,
+                  corporation_x_max,
+                  corporation_y_max,
+                  chooseName,
+                  corporationList,
+                } = detectLocalTarget;
+                // 绘制一个框
+                let width = corporation_x_max - corporation_x_min;
+                let height = corporation_y_max - corporation_y_min;
+                context.beginPath();
+                context.rect(
+                  corporation_x_min,
+                  corporation_y_min,
+                  width,
+                  height,
+                ); // x, y, 宽度, 高度
+                context.closePath();
+                context.stroke(); // 绘制框线
+                // 设置字体样式
+                context.font = '15px Arial';
+                context.fillStyle = 'red';
+                // 在Canvas上写字
+                context.fillText(
+                  `${chooseName}:${corporationList}`,
+                  corporation_x_min,
+                  corporation_y_min,
+                );
+                console.log({ width, height });
+              }
+            })
+            .catch((error) => {
+              console.error(
+                'There has been a problem with your fetch operation:',
+                error,
+              );
+            });
+        }
       }
     }
   }, [resList]);
@@ -72,43 +142,6 @@ const BlobStaticFileDetectionPage: React.FC = () => {
           onError(result.resMes, file);
         }
       });
-
-      // let context = canvasRef.current.getContext('2d');
-      // let canvasSend = canvasRef.current;
-      // context.drawImage(canvasSend, 0, 0, 400, 300);
-      // let { imageInfo, detectTargetList, percentList, totalTargetNum } = data;
-      // for (let index = 0; index < detectTargetList.length; index++) {
-      //   let detectLocalTarget = detectTargetList[index];
-      //   // 将视频帧绘制到canvas上
-      //   // context.drawImage(video, 0, 0, video.width, video.height);
-      //   context.strokeStyle = rectColor[index / 3]; // 框线颜色
-      //   context.lineWidth = 2; // 框线宽度
-      //   let {
-      //     corporation_x_min,
-      //     corporation_y_min,
-      //     corporation_x_max,
-      //     corporation_y_max,
-      //     chooseName,
-      //     corporationList,
-      //   } = detectLocalTarget;
-      //   // 绘制一个框
-      //   let width = corporation_x_max - corporation_x_min;
-      //   let height = corporation_y_max - corporation_y_min;
-      //   context.beginPath();
-      //   context.rect(corporation_x_min, corporation_y_min, width, height); // x, y, 宽度, 高度
-      //   context.closePath();
-      //   context.stroke(); // 绘制框线
-      //   // 设置字体样式
-      //   context.font = '15px Arial';
-      //   context.fillStyle = 'red';
-      //   // 在Canvas上写字
-      //   context.fillText(
-      //     `${chooseName}:${corporationList}`,
-      //     corporation_x_min,
-      //     corporation_y_min,
-      //   );
-      //   console.log({ width, height });
-      // }
     },
     // headers: {
     //   authorization: 'authorization-text',
@@ -120,6 +153,7 @@ const BlobStaticFileDetectionPage: React.FC = () => {
     // action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
     customRequest: async (options) => {
       const { file, onSuccess, onError } = options;
+
       await imageDetectUpload({ file }).then((result) => {
         console.log({ result });
         if (result.resCode === 10000) {

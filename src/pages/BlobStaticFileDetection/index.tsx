@@ -1,15 +1,15 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-04-29 01:30:11
- * @LastEditTime: 2024-05-19 14:11:26
+ * @LastEditTime: 2024-05-20 14:12:29
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\pages\BlobStaticFileDetection\index.tsx
  */
-import { confidence_coefficient_data } from '@/mock/detection_function';
 import { UploadOutlined } from '@ant-design/icons';
 import { Column } from '@ant-design/plots';
 // import { useModel } from '@umijs/max';
+import { names_CN } from '@/config/static';
 import { imageDetectUpload } from '@/services/imageController';
 import type { UploadProps } from 'antd';
 import {
@@ -20,25 +20,59 @@ import {
   Space,
   Typography,
   Upload,
-  message,
 } from 'antd';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 
 const { Title } = Typography;
 
 const BlobStaticFileDetectionPage: React.FC = () => {
-  let [file, setFile] = useState<any>();
+  let [resList, setResList] = useState<any>([]);
   let [detectState, setDetectState] = useState(false);
-  let canvasRef: any;
+  let [selectValue, SetSelectValue] = useState<number>(0);
+  let canvasRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (resList.length > 0) {
+      console.log('开始绘制图像');
+      let { imageName } = resList[0];
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+
+      // 加载本地图片
+      const image = new Image();
+      let imgSrc = `http://localhost:7001/public/${imageName}`;
+      console.log({ imgSrc });
+      image.src = imgSrc;
+      const drawImage = () => {
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      };
+
+      if (image.complete) {
+        drawImage();
+      } else {
+        image.onload = drawImage;
+      }
+    }
+  }, [resList]);
 
   let image_props: UploadProps = {
     name: 'file',
     customRequest: async (options) => {
       const { file, onSuccess, onError } = options;
 
-      await imageDetectUpload({ image: file });
+      await imageDetectUpload({ file }).then((result) => {
+        console.log({ result });
+        if (result.resCode === 10000) {
+          onSuccess(result.resMes, file);
+          setDetectState(true);
+          setResList(result.resultImageLists);
+        } else {
+          onError(result.resMes, file);
+        }
+      });
+
       // let context = canvasRef.current.getContext('2d');
       // let canvasSend = canvasRef.current;
       // context.drawImage(canvasSend, 0, 0, 400, 300);
@@ -79,77 +113,145 @@ const BlobStaticFileDetectionPage: React.FC = () => {
     // headers: {
     //   authorization: 'authorization-text',
     // },
-
-    onChange(info) {
-      setDetectState(true);
-      if (info.file.status !== 'uploading') {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === 'done') {
-        message.success(`${info.file.name} file uploaded successfully`);
-      } else if (info.file.status === 'error') {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
   };
 
   let video_props: UploadProps = {
     name: 'file',
     // action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-    customRequest: (options) => {
+    customRequest: async (options) => {
       const { file, onSuccess, onError } = options;
-      imageDetectUpload({ file });
-    },
-
-    // headers: {
-    //   authorization: 'authorization-text',
-    // },
-    onChange(info) {
-      setDetectState(true);
-      if (info.file.status !== 'uploading') {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === 'done') {
-        message.success(`${info.file.name} file uploaded successfully`);
-      } else if (info.file.status === 'error') {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
-  };
-
-  const config = {
-    width: 500,
-    height: 300,
-    autoFit: true,
-    paddingLeft: 0,
-    xField: 'type',
-    yField: 'value',
-    data: confidence_coefficient_data,
-    // legend: false,
-    // percent: true,
-    // style: {
-    //   fill: ({ type }) => {
-    //     if (type === '10-30分' || type === '30+分') {
-    //       return '#22CBCC';
-    //     }
-    //     return '#2989FF';
-    //   },
-    // },
-    label: {
-      text: (originData: { value: string }) => {
-        const val = parseFloat(originData.value);
-        if (val < 1) {
-          return (val * 100).toFixed(1) + '%';
+      await imageDetectUpload({ file }).then((result) => {
+        console.log({ result });
+        if (result.resCode === 10000) {
+          onSuccess(result.resMes, file);
+          setDetectState(true);
+          setResList(result.resultImageLists);
+        } else {
+          onError(result.resMes, file);
         }
-        return '';
-      },
-      offset: 10,
+      });
     },
   };
 
   let upload_group_class = detectState
     ? styles.upload_group_detect
     : styles.upload_group_unDetect;
+
+  let detectInfoShowCompoment = () => {
+    if (resList.length < 0) {
+      return null;
+    }
+    if (resList.length === 1) {
+      if (resList[0].imageInfo) {
+        let showInfo = resList[0].imageInfo;
+        let { detectTargetList, percentList, totalTargetNum } = showInfo;
+        const config = {
+          width: 500,
+          height: 300,
+          autoFit: true,
+          paddingLeft: 0,
+          xField: 'type',
+          yField: 'value',
+          data: percentList,
+          label: {
+            text: (originData: { value: string }) => {
+              const val = parseFloat(originData.value);
+              if (val < 1) {
+                return (val * 100).toFixed(1) + '%';
+              }
+              return '';
+            },
+            offset: 10,
+          },
+        };
+        let selectOption = [{ value: 0, label: '全部' }];
+        for (let index = 0; index < detectTargetList.length; index++) {
+          const element = detectTargetList[index];
+          selectOption.push({
+            label: element.chooseName,
+            value: index + 1,
+          });
+        }
+
+        return (
+          <>
+            <Title level={3}>检测结果</Title>
+
+            <Descriptions title="检测信息">
+              <Descriptions.Item
+                label="当前选择目标"
+                contentStyle={{ marginTop: '-5px' }}
+              >
+                <Select
+                  value={selectValue}
+                  // style={{ width: 120 }}
+                  // onChange={handleChange}
+                  variant="borderless"
+                  placeholder="请选择目标"
+                  // style={{ flex: 1 }}
+                  options={selectOption}
+                  onSelect={(value) => {
+                    SetSelectValue(value);
+                  }}
+                />
+              </Descriptions.Item>
+              <Descriptions.Item label="当前目标总数">
+                {totalTargetNum}
+              </Descriptions.Item>
+              <Descriptions.Item label="检测花费时间">0.06s</Descriptions.Item>
+              <Descriptions.Item label="当前检测开始时间">
+                {moment().format('YYYY MM DD h:mm:ss')}
+              </Descriptions.Item>
+              {selectValue === 0 ? null : (
+                <>
+                  <Descriptions.Item label="目标学号">
+                    {showInfo.detectTargetList[selectValue - 1]?.student_id}
+                  </Descriptions.Item>
+                </>
+              )}
+            </Descriptions>
+            <Descriptions title="置信度比例">
+              <Descriptions.Item label="图表">
+                <Column {...config} />
+              </Descriptions.Item>
+              {selectValue === 0 ? null : (
+                <>
+                  <Descriptions.Item label="最高置信度">
+                    {showInfo.detectTargetList[selectValue - 1].confidence}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="匹配类型">
+                    {
+                      names_CN[
+                        showInfo.detectTargetList[selectValue - 1].type_value
+                      ]
+                    }
+                  </Descriptions.Item>
+                </>
+              )}
+            </Descriptions>
+            {selectValue === 0 ? null : (
+              <Descriptions title="目标位置">
+                <Descriptions.Item label="X轴-左侧">
+                  {showInfo.detectTargetList[selectValue - 1].corporation_x_max}
+                </Descriptions.Item>
+                <Descriptions.Item label="X轴-右侧">
+                  {showInfo.detectTargetList[selectValue - 1].corporation_x_min}
+                </Descriptions.Item>
+                <Descriptions.Item label="Y轴-左侧">
+                  {showInfo.detectTargetList[selectValue - 1].corporation_y_max}
+                </Descriptions.Item>
+                <Descriptions.Item label="Y轴-右侧">
+                  {showInfo.detectTargetList[selectValue - 1].corporation_y_min}
+                </Descriptions.Item>
+              </Descriptions>
+            )}
+          </>
+        );
+      } else {
+        return <p>未检测到相关信息</p>;
+      }
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -189,48 +291,7 @@ const BlobStaticFileDetectionPage: React.FC = () => {
         {detectState ? (
           <div className={styles.detection_container}>
             <div className={styles.detection_info}>
-              <Title level={3}>检测结果</Title>
-              <Descriptions title="检测信息">
-                <Descriptions.Item
-                  label="当前选择目标"
-                  contentStyle={{ marginTop: '-5px' }}
-                >
-                  <Select
-                    // defaultValue="lucy"
-                    // style={{ width: 120 }}
-                    // onChange={handleChange}
-                    variant="borderless"
-                    placeholder="请选择目标"
-                    // style={{ flex: 1 }}
-                    options={[
-                      { value: 0, label: '全部' },
-                      { value: 1, label: '小明' },
-                      { value: 2, label: '小张' },
-                      { value: 3, label: '小李', disabled: true },
-                    ]}
-                  />
-                </Descriptions.Item>
-                <Descriptions.Item label="目标学号">未注册</Descriptions.Item>
-                <Descriptions.Item label="检测花费时间">
-                  0.06s
-                </Descriptions.Item>
-                <Descriptions.Item label="当前检测开始时间">
-                  {moment().format('YYYY MM DD h:mm:ss')}
-                </Descriptions.Item>
-              </Descriptions>
-              <Descriptions title="置信度比例">
-                <Descriptions.Item label="图表">
-                  <Column {...config} />
-                </Descriptions.Item>
-                <Descriptions.Item label="最高置信度">65%</Descriptions.Item>
-                <Descriptions.Item label="匹配类型">玩手机</Descriptions.Item>
-              </Descriptions>
-              <Descriptions title="目标位置">
-                <Descriptions.Item label="X轴-左侧">122</Descriptions.Item>
-                <Descriptions.Item label="X轴-右侧">156</Descriptions.Item>
-                <Descriptions.Item label="Y轴-左侧">228</Descriptions.Item>
-                <Descriptions.Item label="Y轴-右侧">289</Descriptions.Item>
-              </Descriptions>
+              {detectInfoShowCompoment()}
             </div>
           </div>
         ) : null}

@@ -1,7 +1,7 @@
 /*
  * @Author: wanglinxiang
  * @Date: 2024-05-05 00:29:18
- * @LastEditTime: 2024-05-19 11:03:28
+ * @LastEditTime: 2024-05-20 10:23:53
  * @LastEditors: fuzhenghao
  * @Description:
  * @FilePath: \class_detection_frontend\src\services\utils\fetchMethod.ts
@@ -105,6 +105,5 @@ export const fetchPostFormData = async (
   });
   console.log({ response });
 
-  const data = await readResponseAsJSON(response);
-  return data;
+  return await readResponseAsJSON(response);
 };
